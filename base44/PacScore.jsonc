@@ -1,0 +1,44 @@
+{
+    "name": "PacScore",
+    "type": "object",
+    "properties": {
+      "player_name": {
+        "type": "string",
+        "description": "Nome do jogador exibido no placar"
+      },
+      "score": {
+        "type": "number",
+        "description": "Pontuacao final da partida"
+      },
+      "level": {
+        "type": "number",
+        "description": "Nivel alcancado"
+      },
+      "maze": {
+        "type": "string",
+        "description": "Labirinto final"
+      },
+      "skin": {
+        "type": "string",
+        "description": "Personagem usado"
+      }
+    },
+    "required": [
+      "player_name",
+      "score"
+    ],
+    "rls": {
+      "read": {},
+      "create": {},
+      "update": {
+        "user_condition": {
+          "role": "admin"
+        }
+      },
+      "delete": {
+        "user_condition": {
+          "role": "admin"
+        }
+      }
+    }
+  }

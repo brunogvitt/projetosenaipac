@@ -1,0 +1,198 @@
+<!-- ==========================================================================
+     index.html — ESTRUTURA DA TELA (HTML)
+     Aqui só existe marcação: nenhuma regra de jogo e nenhum estilo.
+     O visual vem de ../css/styles.css e o comportamento de ../js/*.js.
+     No app em React este mesmo HTML está escrito em JSX dentro de
+     src/pages/Pacman.jsx e src/components/game/*.jsx.
+     ========================================================================== -->
+     <!doctype html>
+     <html lang="pt-BR">
+       <head>
+         <!-- Codificação e tamanho da tela (meta viewport = responsivo no celular) -->
+         <meta charset="UTF-8" />
+         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+         <meta name="description" content="Pac-Man Neon: labirintos fechados, sete fantasmas com IA própria, níveis infinitos e personagem personalizável." />
+         <title>Pac-Man Neon</title>
+     
+         <!-- Fontes: Press Start 2P (letras de fliperama) e Inter (texto) -->
+         <link rel="preconnect" href="https://fonts.googleapis.com" />
+         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+         <link
+           href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700&display=swap"
+           rel="stylesheet"
+         />
+     
+         <!-- Todo o visual do jogo está neste arquivo (pasta css) -->
+         <link rel="stylesheet" href="../css/styles.css" />
+       </head>
+     
+       <body>
+         <!-- Luzes de fundo decorativas (não recebem cliques) -->
+         <div class="bg-glow" aria-hidden="true"></div>
+     
+         <div class="page">
+           <!-- ====================== COLUNA ESQUERDA: O JOGO ====================== -->
+           <main class="col-main">
+             <!-- Cabeçalho: título + botões de som, pausa e reiniciar -->
+             <header class="topbar">
+               <div>
+                 <h1 class="title">PAC-MAN</h1>
+                 <p class="subtitle">Fantasmas com IA própria · labirintos fechados</p>
+               </div>
+               <div class="topbar-actions">
+                 <button id="btn-sound" class="icon-btn" type="button" aria-label="Som" title="Som (M)">🔊</button>
+                 <button id="btn-pause" class="icon-btn" type="button" aria-label="Pausar" title="Pausar (P)">⏸</button>
+                 <button id="btn-restart" class="icon-btn" type="button" aria-label="Reiniciar" title="Reiniciar">↻</button>
+               </div>
+             </header>
+     
+             <!-- Tabuleiro: o canvas onde o jogo é desenhado + as telas por cima -->
+             <div class="board-wrap">
+               <!-- width/height são a resolução lógica (28x31 casas de 16px);
+                    o JS ajusta para a nitidez do seu monitor (devicePixelRatio) -->
+               <canvas id="game" class="board" width="448" height="496"></canvas>
+     
+               <!-- TELA INICIAL: mostrada antes da primeira partida -->
+               <section id="screen-start" class="overlay">
+                 <canvas id="pac-preview" class="pac-preview" width="144" height="144" aria-hidden="true"></canvas>
+                 <h2 class="overlay-title overlay-title-blue">PAC-MAN</h2>
+                 <p class="overlay-sub">7 fantasmas · 3 labirintos · níveis infinitos</p>
+                 <button id="btn-start" class="btn btn-primary btn-lg btn-display" type="button">▶ JOGAR</button>
+                 <p class="hint">
+                   Setas / WASD para mover · <b>P</b> pausa · <b>M</b> som. No celular, arraste o dedo ou use o direcional.
+                 </p>
+                 <p class="hint hint-gold">🏆 Recorde: <span id="start-best">0</span></p>
+                 <p class="hint hint-small">
+                   Coma as pastilhas de poder e engula os fantasmas: 200, 400, 800 e 1600 pontos em sequência.
+                 </p>
+               </section>
+     
+               <!-- TELA DE PAUSA: ligada/desligada pelo JS -->
+               <section id="screen-pause" class="overlay overlay-hidden">
+                 <p class="overlay-title overlay-title-blue">PAUSADO</p>
+                 <button id="btn-resume" class="btn btn-primary btn-lg btn-display" type="button">▶ CONTINUAR</button>
+               </section>
+     
+               <!-- TELA DE FIM DE JOGO: mostra o resultado e salva no placar -->
+               <section id="screen-over" class="overlay overlay-hidden">
+                 <h2 class="overlay-title overlay-title-rose">FIM DE JOGO</h2>
+                 <p class="score-final" id="over-score">0</p>
+                 <p class="overlay-sub">Nível alcançado: <span id="over-level">1</span></p>
+                 <p class="hint hint-gold" id="over-record"></p>
+     
+                 <div class="save-box">
+                   <input id="player-name" class="input" type="text" maxlength="16" placeholder="Seu nome no placar" />
+                   <button id="btn-save" class="btn btn-primary btn-block" type="button">💾 Salvar no placar</button>
+                 </div>
+     
+                 <button id="btn-again" class="btn btn-outline btn-lg btn-display" type="button">↻ JOGAR DE NOVO</button>
+               </section>
+     
+               <!-- Aviso que aparece quando o nível é concluído -->
+               <p id="level-clear" class="level-clear overlay-hidden">NÍVEL COMPLETO!</p>
+             </div>
+     
+             <!-- PAINEL (HUD): números atualizados pelo JS durante a partida -->
+             <section class="hud">
+               <div class="stat">
+                 <span class="stat-icon">★</span>
+                 <div>
+                   <p class="stat-label">Pontos</p>
+                   <p class="stat-value stat-blue" id="hud-score">0</p>
+                 </div>
+               </div>
+               <div class="stat">
+                 <span class="stat-icon">🏆</span>
+                 <div>
+                   <p class="stat-label">Recorde</p>
+                   <p class="stat-value stat-gold" id="hud-best">0</p>
+                 </div>
+               </div>
+               <div class="stat">
+                 <span class="stat-icon">👻</span>
+                 <div>
+                   <p class="stat-label" id="hud-level">Nível 1</p>
+                   <p class="stat-value" id="hud-maze">—</p>
+                 </div>
+               </div>
+               <div class="stat">
+                 <span class="stat-icon">♥</span>
+                 <div>
+                   <p class="stat-label">Vidas</p>
+                   <p class="stat-value stat-rose" id="hud-lives">●●●</p>
+                 </div>
+               </div>
+             </section>
+     
+             <!-- Etiquetas com a fruta do nível, frutas coletadas e pastilhas restantes -->
+             <div class="hud-badges">
+               <span class="badge" id="hud-fruit">🍒 Cereja · 100 pts</span>
+               <span class="badge overlay-hidden" id="hud-collected">Coletadas:</span>
+               <span class="badge">Pastilhas restantes: <b id="hud-pellets">0</b></span>
+               <span class="badge badge-fright overlay-hidden" id="hud-fright">Fantasmas assustados! Combo x1</span>
+             </div>
+     
+             <!-- DIRECIONAL: aparece só no celular (o CSS esconde em telas grandes).
+                  O atributo data-dir diz ao JS para onde o Pac-Man deve ir. -->
+             <div class="dpad" id="dpad">
+               <button class="dpad-btn dpad-up" type="button" data-dir="up" aria-label="cima">▲</button>
+               <button class="dpad-btn dpad-left" type="button" data-dir="left" aria-label="esquerda">◀</button>
+               <button class="dpad-btn dpad-right" type="button" data-dir="right" aria-label="direita">▶</button>
+               <button class="dpad-btn dpad-down" type="button" data-dir="down" aria-label="baixo">▼</button>
+             </div>
+           </main>
+     
+           <!-- ===================== COLUNA DIREITA: PERSONALIZAÇÃO ===================== -->
+           <aside class="col-side">
+             <!-- Cartão: escolher cor e acessório do Pac-Man -->
+             <section class="card">
+               <div class="card-head">
+                 <div>
+                   <h2 class="card-title">SEU PAC-MAN</h2>
+                   <p class="card-text">Escolha a cor e o acessório.</p>
+                 </div>
+                 <!-- Prévia desenhada no canvas pelo JS (js/ui.js) -->
+                 <canvas id="skin-preview" class="pac-preview" width="108" height="108" aria-hidden="true"></canvas>
+               </div>
+               <!-- As bolinhas de cor e as opções de acessório são criadas pelo JS
+                    a partir das listas de js/skins.js -->
+               <div class="swatches" id="color-list"></div>
+               <div class="chips" id="accessory-list"></div>
+             </section>
+     
+             <!-- Cartão: placar dos melhores jogadores -->
+             <section class="card">
+               <div class="card-head">
+                 <h2 class="card-title">🏆 PLACAR</h2>
+                 <button id="btn-refresh" class="icon-btn icon-btn-sm" type="button" aria-label="Atualizar placar" title="Atualizar">↻</button>
+               </div>
+               <ol class="rank" id="rank-list"></ol>
+               <p class="card-text" id="rank-empty">Ninguém pontuou ainda. Seja o primeiro!</p>
+             </section>
+     
+             <!-- Cartão: legenda dos 7 fantasmas (criada pelo JS a partir de GHOST_DEFS) -->
+             <section class="card">
+               <h2 class="card-title">FANTASMAS</h2>
+               <p class="card-text">Cada um caça de um jeito diferente. Novos entram conforme você sobe de nível.</p>
+               <ul class="ghosts" id="ghost-list"></ul>
+             </section>
+           </aside>
+         </div>
+     
+         <!-- ==========================================================================
+              SCRIPTS: a ordem importa, porque cada arquivo usa o que o anterior criou.
+              1) mazes  → labirintos e utilidades
+              2) sound  → efeitos sonoros
+              3) skins  → cores, acessórios e preferências salvas
+              4) render → desenho no canvas
+              5) engine → motor do jogo (usa os 4 anteriores)
+              6) ui     → liga os botões/telas ao motor
+              ========================================================================== -->
+         <script src="../js/mazes.js"></script>
+         <script src="../js/sound.js"></script>
+         <script src="../js/skins.js"></script>
+         <script src="../js/render.js"></script>
+         <script src="../js/engine.js"></script>
+         <script src="../js/ui.js"></script>
+       </body>
+     </html>
